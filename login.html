@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CrimeSync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Consistent base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #f1f5f9;
+            background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)), url('a.jpg');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .glass-nav {
+            background-color: rgba(10, 10, 10, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Form styling */
+        .form-input {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #f1f5f9;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Role selection tabs */
+        .role-tab {
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+        .role-tab.active {
+            background-color: #ef4444;
+            color: white;
+        }
+        .role-tab:not(.active) {
+            background-color: #374151; /* gray-700 */
+            color: #d1d5db; /* gray-300 */
+        }
+        .role-tab:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Bouncy Animation on Hover */
+        .bouncy-hover {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .bouncy-hover:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header / Navigation (Consistent with other pages) -->
+    <header id="header" class="glass-nav sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-white flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-red-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                CrimeSync
+            </a>
+            <div class="flex items-center gap-4">
+                 <a href="index.html" class="text-slate-300 hover:text-white px-4 py-2 rounded-lg font-semibold transition duration-300">
+                    Home
+                </a>
+                <a href="report.html" class="text-slate-300 hover:text-white px-4 py-2 rounded-lg font-semibold transition duration-300">
+                    Report a Crime
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-lg p-10">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+                    Login to Your Account
+                </h2>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="flex bg-gray-800 rounded-lg p-1">
+                <button id="citizen-tab" class="role-tab active w-1/2 p-2 rounded-md font-semibold">Citizen</button>
+                <button id="police-tab" class="role-tab w-1/2 p-2 rounded-md font-semibold">Police</button>
+            </div>
+
+            <form class="mt-8 space-y-6" action="#" method="POST">
+                <input type="hidden" name="remember" value="true">
+                <input type="hidden" name="role" id="role-input" value="citizen">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="contact-number" class="sr-only">Contact Number</label>
+                        <input id="contact-number" name="contact" type="tel" required class="appearance-none rounded-none relative block w-full px-3 py-4 form-input placeholder-gray-500 rounded-t-md focus:z-10 sm:text-sm" placeholder="Contact Number">
+                    </div>
+                    <div class="relative">
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-4 form-input placeholder-gray-500 rounded-b-md focus:z-10 sm:text-sm" placeholder="Password">
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 z-20 px-4 flex items-center text-gray-400 hover:text-white">
+                            <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-red-500 hover:text-red-400 bouncy-hover inline-block">
+                            Forgot your password?
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-900 bouncy-hover">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+             <div class="text-sm text-center">
+                <p class="text-slate-400">Don't have an account? 
+                    <a href="#" class="font-medium text-red-500 hover:text-red-400 bouncy-hover inline-block">
+                        Sign up
+                    </a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const citizenTab = document.getElementById('citizen-tab');
+            const policeTab = document.getElementById('police-tab');
+            const roleInput = document.getElementById('role-input');
+            const togglePassword = document.getElementById('toggle-password');
+            const passwordInput = document.getElementById('password');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+
+            citizenTab.addEventListener('click', () => {
+                citizenTab.classList.add('active');
+                policeTab.classList.remove('active');
+                roleInput.value = 'citizen';
+            });
+
+            policeTab.addEventListener('click', () => {
+                policeTab.classList.add('active');
+                citizenTab.classList.remove('active');
+                roleInput.value = 'police';
+            });
+            
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                eyeOpen.classList.toggle('hidden');
+                eyeClosed.classList.toggle('hidden');
+            });
+        });
+    </script>
+
+</body>
+</html>
+

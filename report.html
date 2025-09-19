@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report a Crime | CrimeSync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Inheriting base styles from index.html for consistency */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #f1f5f9;
+        }
+
+        .glass-nav {
+            background-color: rgba(10, 10, 10, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Form styling */
+        .form-input, .evidence-description {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #f1f5f9;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            color-scheme: dark; /* Helps hint to browser for dark controls */
+        }
+        .form-input:focus, .evidence-description:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
+        }
+        /* Style for the date/time picker icon */
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        .form-checkbox {
+            background-color: #1a1a1a;
+            border-color: #333;
+        }
+        .form-checkbox:checked {
+            background-color: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        /* Progress Bar */
+        .progress-step {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: #333;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 10;
+        }
+        .progress-step.active {
+            background-color: #ef4444;
+            color: white;
+        }
+        .progress-line {
+            position: absolute;
+            height: 4px;
+            background-color: #333;
+            top: 1rem;
+            transform: translateY(-50%);
+            left: 12.5%;
+            width: 75%;
+            z-index: 5;
+        }
+        #progress-bar-fill {
+            height: 100%;
+            background-color: #ef4444;
+            transition: width 0.4s ease;
+        }
+        
+        /* Drag and Drop Area */
+        .drop-zone {
+            border: 2px dashed #444;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+        .drop-zone.drag-over {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Hide form steps by default */
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Floating Help Button */
+        .floating-help-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background-color: #ef4444; /* red-500 */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            z-index: 1000;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+        }
+
+        .floating-help-btn:hover {
+            transform: scale(1.1);
+            animation-play-state: paused;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header / Navigation (Consistent with index.html) -->
+    <header id="header" class="glass-nav sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-white flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-red-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                CrimeSync
+            </a>
+            <div class="flex items-center gap-4">
+                 <a href="index.html" class="text-slate-300 hover:text-white px-4 py-2 rounded-lg font-semibold transition duration-300">
+                    Home
+                </a>
+                <a href="login.html" class="border border-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-300">
+                    Login
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="py-16 md:py-24">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto bg-gray-900/50 rounded-2xl border border-slate-800 shadow-lg p-8 md:p-12">
+                
+                <!-- Progress Indicator -->
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold text-center mb-2">Submit a Crime Report</h2>
+                    <p class="text-slate-400 text-center">Please provide accurate information. All reports are confidential.</p>
+                    <div class="mt-8 relative">
+                        <!-- Progress line -->
+                        <div class="progress-line">
+                            <div id="progress-bar-fill"></div>
+                        </div>
+                        <!-- Steps with labels -->
+                        <div class="flex justify-between items-start relative z-10">
+                            <div class="w-1/4 text-center">
+                                <div class="progress-step active mx-auto" id="step-indicator-1">1</div>
+                                <p class="mt-2 text-xs sm:text-sm text-slate-400">Incident Details</p>
+                            </div>
+                            <div class="w-1/4 text-center">
+                                <div class="progress-step mx-auto" id="step-indicator-2">2</div>
+                                <p class="mt-2 text-xs sm:text-sm text-slate-400">Upload Evidence</p>
+                            </div>
+                            <div class="w-1/4 text-center">
+                                <div class="progress-step mx-auto" id="step-indicator-3">3</div>
+                                <p class="mt-2 text-xs sm:text-sm text-slate-400">Review</p>
+                            </div>
+                            <div class="w-1/4 text-center">
+                                <div class="progress-step mx-auto" id="step-indicator-4">4</div>
+                                <p class="mt-2 text-xs sm:text-sm text-slate-400">Confirmation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="report-form">
+                    <!-- Step 1: Incident Details -->
+                    <div id="step-1" class="form-step active">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="crime-type" class="block mb-2 font-semibold">Type of Crime</label>
+                                <select id="crime-type" class="w-full p-3 rounded-lg form-input">
+                                    <option>Theft</option>
+                                    <option>Assault</option>
+                                    <option>Vandalism</option>
+                                    <option>Harassment</option>
+                                    <option>Cyber Crime</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="incident-date" class="block mb-2 font-semibold">Date & Time of Incident</label>
+                                <input type="datetime-local" id="incident-date" class="w-full p-3 rounded-lg form-input">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="location" class="block mb-2 font-semibold">Location</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="location" placeholder="e.g., Mirpur 10, Dhaka" class="w-full p-3 rounded-lg form-input">
+                                    <button type="button" onclick="getCurrentLocation()" class="bg-gray-700 text-white px-4 rounded-lg hover:bg-gray-600 transition">Current</button>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="description" class="block mb-2 font-semibold">Detailed Description</label>
+                                <textarea id="description" rows="5" placeholder="Describe the incident in as much detail as possible..." class="w-full p-3 rounded-lg form-input"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-8 text-right">
+                            <button type="button" class="bg-red-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-red-700 transition" onclick="nextStep()">Next: Upload Evidence</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Upload Evidence -->
+                    <div id="step-2" class="form-step">
+                        <label class="block mb-2 font-semibold">Upload Evidence (Photos, Videos, Documents)</label>
+                        <div id="drop-zone" class="drop-zone p-8 text-center rounded-lg cursor-pointer">
+                            <p class="text-slate-400">Drag & drop files here, or click to select files</p>
+                            <input type="file" id="file-upload" multiple class="hidden">
+                        </div>
+                        <div id="file-preview" class="mt-4 space-y-4"></div>
+                        <div class="mt-8 flex justify-between">
+                            <button type="button" class="bg-gray-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-700 transition" onclick="prevStep()">Previous</button>
+                            <button type="button" class="bg-red-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-red-700 transition" onclick="nextStep()">Next: Review</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Review Information -->
+                    <div id="step-3" class="form-step">
+                        <h3 class="text-xl font-bold mb-4">Please Review Your Report</h3>
+                        <div id="review-content" class="space-y-4 bg-gray-900 p-6 rounded-lg border border-slate-700"></div>
+                         <div class="mt-6">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="anonymous-check" class="form-checkbox h-5 w-5 rounded text-red-600 focus:ring-red-500/50">
+                                <span class="ml-3 text-slate-300">Submit this report anonymously</span>
+                            </label>
+                        </div>
+                        <div class="mt-8 flex justify-between">
+                            <button type="button" class="bg-gray-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-700 transition" onclick="prevStep()">Previous</button>
+                            <button type="button" class="bg-red-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-red-700 transition" onclick="submitForm()">Submit Report</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Confirmation -->
+                    <div id="step-4" class="form-step text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 mx-auto text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <h3 class="text-3xl font-bold mt-4">Report Submitted Successfully!</h3>
+                        <p class="text-slate-300 mt-2">Thank you for your cooperation. Your report has been sent to the concerned authorities.</p>
+                        <div class="mt-6 bg-gray-900 p-4 rounded-lg border border-slate-700 inline-block">
+                            <p class="text-sm text-slate-400">Your Case ID is:</p>
+                            <p id="case-id" class="text-2xl font-mono font-bold text-red-500 tracking-widest"></p>
+                        </div>
+                        <p class="mt-4 text-sm text-slate-400">Please save this ID for future reference and tracking.</p>
+                        <div class="mt-8">
+                            <a href="index.html" class="bg-red-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-red-700 transition">Back to Home</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Floating Help Button -->
+    <div class="floating-help-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.querySelector(`#step-${step}`).classList.add('active');
+            updateProgress();
+        }
+
+        function nextStep() {
+            if (currentStep < 4) {
+                if (currentStep === 2) {
+                    populateReview();
+                }
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        function updateProgress() {
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const progress = ((currentStep - 1) / 3) * 100;
+            progressBarFill.style.width = `${progress}%`;
+            
+            for(let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step-indicator-${i}`);
+                if (i <= currentStep) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            }
+        }
+        
+        // Drag and Drop functionality
+        const dropZone = document.getElementById('drop-zone');
+        const fileUpload = document.getElementById('file-upload');
+        const filePreview = document.getElementById('file-preview');
+
+        dropZone.addEventListener('click', () => fileUpload.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+        fileUpload.addEventListener('change', () => handleFiles(fileUpload.files));
+
+        let evidenceFiles = [];
+
+        function handleFiles(files) {
+            filePreview.innerHTML = '';
+            evidenceFiles = Array.from(files).map(file => ({ file, description: '' }));
+            
+            evidenceFiles.forEach((evidence, index) => {
+                const fileEl = document.createElement('div');
+                fileEl.className = 'bg-gray-800 p-3 rounded-lg';
+                fileEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-300">${evidence.file.name}</span>
+                        <span class="text-xs text-slate-500">${(evidence.file.size / 1024).toFixed(2)} KB</span>
+                    </div>
+                    <input type="text" data-index="${index}" class="evidence-description w-full p-2 rounded-md mt-2 text-sm" placeholder="Add a brief description of this evidence...">
+                `;
+                filePreview.appendChild(fileEl);
+            });
+
+            filePreview.querySelectorAll('.evidence-description').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    evidenceFiles[index].description = e.target.value;
+                });
+            });
+        }
+
+        function populateReview() {
+            const crimeType = document.getElementById('crime-type').value;
+            const incidentDate = document.getElementById('incident-date').value;
+            const location = document.getElementById('location').value;
+            const description = document.getElementById('description').value;
+            const isAnonymous = document.getElementById('anonymous-check').checked;
+            
+            let filesHtml = 'None';
+            if (evidenceFiles.length > 0) {
+                filesHtml = '<ul class="space-y-2">';
+                evidenceFiles.forEach(evidence => {
+                    filesHtml += `<li class="text-sm ml-4 list-disc">${evidence.file.name} <br> <span class="text-slate-400 text-xs pl-2">- ${evidence.description || 'No description'}</span></li>`;
+                });
+                filesHtml += '</ul>';
+            }
+
+            const reviewContent = document.getElementById('review-content');
+            reviewContent.innerHTML = `
+                <p><strong>Crime Type:</strong><br><span class="text-slate-300">${crimeType}</span></p>
+                <p><strong>Date & Time:</strong><br><span class="text-slate-300">${incidentDate ? new Date(incidentDate).toLocaleString() : 'Not specified'}</span></p>
+                <p><strong>Location:</strong><br><span class="text-slate-300">${location || 'Not specified'}</span></p>
+                <p><strong>Description:</strong><br><span class="text-slate-300">${description || 'Not specified'}</span></p>
+                <p><strong>Submit Anonymously:</strong><br><span class="text-slate-300">${isAnonymous ? 'Yes' : 'No'}</span></p>
+                <p><strong>Evidence Files:</strong><br>${filesHtml}</p>
+            `;
+        }
+
+        function submitForm() {
+            // In a real application, this would send data to a server.
+            // Here, we'll just simulate it.
+            populateReview(); // Final data capture before showing confirmation
+            const caseId = 'BD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            document.getElementById('case-id').textContent = caseId;
+            nextStep(); // Move to confirmation step
+        }
+        
+        function setInitialDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('incident-date').value = now.toISOString().slice(0,16);
+        }
+
+        function getCurrentLocation() {
+            // In a real app, you'd use navigator.geolocation.
+            // For this demo, we'll use a default value.
+            document.getElementById('location').value = 'Dhaka, Bangladesh';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setInitialDateTime();
+            showStep(currentStep); // Initialize first step
+        });
+    </script>
+
+</body>
+</html>
+
